@@ -55,11 +55,98 @@
     display: flex;
     justify-content: center;
     padding: 0 0 72px;
+    position: relative;
+    overflow-x: clip;
   }
 
   .sheet {
     width: 100%;
     max-width: 460px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- ambient background shapes ---------- */
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(38px);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .blob-1 {
+    width: 220px;
+    height: 220px;
+    top: -40px;
+    right: -60px;
+    background: radial-gradient(circle, var(--green-light) 0%, transparent 72%);
+    animation: drift-a 16s ease-in-out infinite;
+  }
+
+  .blob-2 {
+    width: 260px;
+    height: 260px;
+    top: 340px;
+    left: -90px;
+    background: radial-gradient(circle, var(--mint-deep) 0%, transparent 72%);
+    animation: drift-b 20s ease-in-out infinite;
+  }
+
+  .blob-3 {
+    width: 200px;
+    height: 200px;
+    bottom: 260px;
+    right: -70px;
+    background: radial-gradient(circle, var(--green-bright) 0%, transparent 72%);
+    opacity: 0.4;
+    animation: drift-a 18s ease-in-out infinite reverse;
+  }
+
+  @keyframes drift-a {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-18px, 22px) scale(1.08); }
+  }
+
+  @keyframes drift-b {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -16px) scale(1.06); }
+  }
+
+  /* ---------- scroll reveal ---------- */
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- gentle pulse for primary WhatsApp CTAs ---------- */
+
+  @keyframes soft-pulse {
+    0%, 100% { box-shadow: 0 10px 22px -10px rgba(111, 174, 46, 0.6), 0 0 0 0 rgba(111, 174, 46, 0.35); }
+    50% { box-shadow: 0 10px 22px -10px rgba(111, 174, 46, 0.6), 0 0 0 10px rgba(111, 174, 46, 0); }
+  }
+
+  .btn.pulse {
+    animation: soft-pulse 2.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blob { animation: none; }
+    .btn.pulse { animation: none; }
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   h1, h2 {
@@ -552,6 +639,9 @@
 </head>
 <body>
 <div class="page">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
   <div class="sheet">
 
     <div class="hero">
@@ -583,7 +673,7 @@
       </div>
     </div>
 
-    <section>
+    <section class="reveal">
       <span class="eyebrow">مجالات العلاج</span>
       <h2>ماذا تعالج</h2>
       <ul class="treats">
@@ -593,7 +683,7 @@
       </ul>
     </section>
 
-    <section>
+    <section class="reveal">
       <span class="eyebrow">حالة حقيقية</span>
       <h2>رحلة تقويم كاملة</h2>
       <div class="case-strip">
@@ -617,7 +707,7 @@
       <p class="case-note">حالة فراغ بين الثنايا العلوية — علاجها د. أمل الأمير بالتقويم الثابت حتى إغلاق الفراغ بالكامل</p>
     </section>
 
-    <section>
+    <section class="reveal">
       <span class="eyebrow">رسالة من الطبيبة</span>
       <h2>قبل ما تزورنا</h2>
       <div class="message-card">
@@ -660,7 +750,7 @@
       </div>
     </section>
 
-    <section>
+    <section class="reveal">
       <span class="eyebrow">الموقع</span>
       <h2>مجمع سينان لطب الأسنان</h2>
       <div class="card">
@@ -673,10 +763,10 @@
       </div>
     </section>
 
-    <section class="cta-band">
+    <section class="cta-band reveal">
       <h2>ابدأ رحلة ابتسامتك اليوم</h2>
       <p>لحجز موعد أو الاستفسار عن حالتك، تواصل معنا مباشرة عبر واتساب</p>
-      <a class="btn primary" href="https://wa.me/966539039474" target="_blank" rel="noopener">احجز موعدك الآن</a>
+      <a class="btn primary pulse" href="https://wa.me/966539039474" target="_blank" rel="noopener">احجز موعدك الآن</a>
     </section>
 
     <footer>
@@ -699,6 +789,27 @@
 
   </div>
 </div>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry, i) {
+        if (entry.isIntersecting) {
+          setTimeout(function () {
+            entry.target.classList.add('is-visible');
+          }, i * 80);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+</script>
 
 </body>
 </html>
